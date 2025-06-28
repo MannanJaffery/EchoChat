@@ -2,9 +2,15 @@ import { signInWithPopup ,signInWithEmailAndPassword } from "firebase/auth";
 import { auth , provider } from "../firebase";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {Eye , EyeOff} from 'lucide-react'
+import { FaGoogle } from "react-icons/fa";
+import { doc, setDoc ,getDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { ErrorLog } from "../services/errorlog";
 
 
 const LoginGoogle = () => {
+
 
     const [mail , setMail]= useState('');
     const [pas , setPas]= useState('');
@@ -12,6 +18,8 @@ const LoginGoogle = () => {
 
 
     const navigate=useNavigate();
+
+
     const handlelogin1= async (e)=>{//with email and password
         e.preventDefault();
 
@@ -30,13 +38,20 @@ const LoginGoogle = () => {
         }
 
         catch(err){
+          await ErrorLog({
+                    message:err.message,
+                    location:'Nested Component , login.jsx - handlelogin1',
+                    stack:err.stack,
+             })
             alert("Login  failed:" + err.message)
             console.log(err);
         }
 
     }
 
-    const handleLogin2 = async () =>{
+
+
+    const handleLogin2 = async () =>{ //google 
           
 
         try{
@@ -45,17 +60,36 @@ const LoginGoogle = () => {
         await user.reload();
         
         console.log("user logged in:",user);
+          const userRef= doc(db ,"User" , user.uid);
+          const snap = await getDoc(userRef);
+
+          if(!snap.exists()){
+            await setDoc(userRef,{
+              name:result.user.displayName,
+              email:result.user.email,
+              photourl:result.user.photoURL,
+              isOnline:true,
+            })
+
+          }
+
         alert("User logged In");
+
         navigate("/home");
         }
 
         catch(err){
+          alert("Error , please try again later")
+          await ErrorLog({
+                    message:err.message,
+                    location:' login.jsx - handlelogin2',
+                    stack:err.stack,
+            })
             console.log(err);
         }
     }
 
-
-
+    
   return (
     <>
   <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -73,8 +107,6 @@ const LoginGoogle = () => {
       className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
     />
     
-
-
     <div className="relative w-100">
     <input
       type={showpas === true ? "text" : "password" }
@@ -84,13 +116,14 @@ const LoginGoogle = () => {
       className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
     />
 
-    <button onClick={()=>{
-      (showpas === true) ? setShowpas(false) : setShowpas(true);
-    }}
-    type="button"
-    className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1 text-sm rounded hover:bg-blue-700 transition"
-    >Toggle Password</button>
+  <span
+    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+    onClick={() => setShowpas(!showpas)}
+  >
+     { showpas ? <EyeOff size={20}/>
+     : <Eye size={20} />}
 
+</span>
     </div>
 
     <button
@@ -103,8 +136,9 @@ const LoginGoogle = () => {
     <button
       onClick={handleLogin2}
       type="button"
-      className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-200"
+      className="flex items-center gap-2 justify-center bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-200"
     >
+      <FaGoogle size={18} />
       Sign in with Google
     </button>
 

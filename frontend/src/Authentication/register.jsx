@@ -2,6 +2,9 @@ import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/
 import { useEffect, useState } from "react";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { doc  ,setDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { ErrorLog } from "../services/errorlog";
 
 
 const Register = () => {
@@ -10,6 +13,8 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [checkverified , setCheckVerified] = useState(false);
+
+
 
   const handleRegister = async (e)=>{
     e.preventDefault();
@@ -21,15 +26,39 @@ const Register = () => {
       setCheckVerified(true);
       alert("Email Verification Sent , Kindly check spam");
       
+      try{
+        await setDoc(doc(db,"User" ,user.uid ),{
+          name,
+          email,
+          isOnline:true,
+          photourl:`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`,
+        })
+
+      }catch(err){
+        await ErrorLog({
+          message:err.message,
+          location:'Nested Component , register.jsx - HandleRegister',
+          stack:err.stack,
+        })
+        console.log(err + "in nested try-catch");
+      }
     }
     catch(err){
         if(err.code==='auth/email-already-in-use'){
             alert("This email is alreadt in use , Login");
         }
+        else{
+          await ErrorLog({
+          message:err.message,
+          location:'register.jsx - HandleRegister',
+          stack:err.stack,
+        })
+        }
         navigate("/login");
         console.log(err);
     }
   }
+
 
 
   useEffect(()=>{
