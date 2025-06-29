@@ -6,7 +6,7 @@ import { AuthProvider } from "./context/authprovider";
 import Home from "./components/home";
 import ProtectedRoute from "./components/protectedroute";
 import ForgetPassword from "./Authentication/forgetpassword";
-
+import ChatRoom from "./components/chatroom";
 function App() {
   return (
 
@@ -18,6 +18,11 @@ function App() {
         <Route path="/forgetpassword" element = {<ForgetPassword />}></Route>
         <Route path="/home" element = {<ProtectedRoute>
           <Home />
+          </ProtectedRoute>}>
+        </Route>
+
+        <Route path="/chatroom" element = {<ProtectedRoute>
+          <ChatRoom />
           </ProtectedRoute>}>
         </Route>
 

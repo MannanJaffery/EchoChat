@@ -17,9 +17,9 @@ const LoginGoogle = () => {
     const [showpas, setShowpas] = useState(false);
 
 
+    
+
     const navigate=useNavigate();
-
-
     const handlelogin1= async (e)=>{//with email and password
         e.preventDefault();
 
@@ -69,6 +69,7 @@ const LoginGoogle = () => {
               email:result.user.email,
               photourl:result.user.photoURL,
               isOnline:true,
+              uid:user.uid,
             })
 
           }
@@ -88,6 +89,10 @@ const LoginGoogle = () => {
             console.log(err);
         }
     }
+
+
+
+
 
     
   return (

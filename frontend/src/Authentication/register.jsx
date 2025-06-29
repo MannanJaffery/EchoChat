@@ -32,8 +32,11 @@ const Register = () => {
           email,
           isOnline:true,
           photourl:`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`,
+          uid:user.uid,
+
         })
 
+        
       }catch(err){
         await ErrorLog({
           message:err.message,

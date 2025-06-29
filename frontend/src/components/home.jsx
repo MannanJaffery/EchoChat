@@ -2,9 +2,13 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 
 import { ErrorLog } from "../services/errorlog";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
 
+
+
+    const navigate = useNavigate();
     const handleSignOut = async ()=>{
         try{
 
@@ -24,10 +28,13 @@ const Home = () => {
     
   return (
     <>
+
     <h1>Home Page</h1>
     <button onClick={handleSignOut}>
         SignOut
     </button>
+
+    <button onClick={()=>navigate("/chatroom") }>Go to Chatroom</button>
     
     </>
   )
