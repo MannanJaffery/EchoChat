@@ -65,7 +65,6 @@ const ChatRoom = () => {
 
       return (
 
-
         <div
           key={msg.id}
           className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
@@ -89,7 +88,6 @@ const ChatRoom = () => {
     })}
   </div>
 
-
   <div className="p-4 bg-white shadow-inner flex gap-2">
     <input
       type="text"
@@ -97,6 +95,11 @@ const ChatRoom = () => {
       value={newmsg}
       onChange={(e) => Setnewmsg(e.target.value)}
       className="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+      onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      handlesend();
+    }
+  }}
     />
     <button
       onClick={handlesend}
