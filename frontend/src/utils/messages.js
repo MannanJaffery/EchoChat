@@ -3,7 +3,6 @@ import { collection , addDoc , onSnapshot , orderBy , query , serverTimestamp } 
 
 const messagesref= collection(db , "messages");
 
-
 export const sendMessage = async (text , user)=>{
     if(!text.trim()) return;
 
@@ -12,6 +11,7 @@ export const sendMessage = async (text , user)=>{
         createdAt:serverTimestamp(),
         userId:user.uid,
         userName: user.name||"Annonomoyus",
+        imageurl:null,
     })
 }
 
@@ -41,6 +41,8 @@ export const send_dm =async (text , sender , receiver)=>{
 
 if(!text.trim()) return;
 
+
+
 const chatId = get_Id(sender.uid.trim(),receiver.uid.trim());
 
 const msgrefdm = collection(db , "chats" , chatId , "messages");
@@ -51,6 +53,7 @@ await addDoc(msgrefdm , {
   createdAt:serverTimestamp(),
   userId:sender.uid,
   userName:sender.name,
+  imageurl:null,
 })
 
 
@@ -71,10 +74,4 @@ export const listentodm = (user1, user2, callback) => {
     callback(msgs); 
   });
 };
-
-
-
-
-
-
 
