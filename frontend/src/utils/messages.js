@@ -3,7 +3,7 @@ import { collection , addDoc , onSnapshot , orderBy , query , serverTimestamp } 
 
 const messagesref= collection(db , "messages");
 
-export const sendMessage = async (text , user)=>{
+export const sendMessage = async (text , user, imagerul = null)=>{
     if(!text.trim()) return;
 
     await addDoc(messagesref, {
@@ -11,7 +11,7 @@ export const sendMessage = async (text , user)=>{
         createdAt:serverTimestamp(),
         userId:user.uid,
         userName: user.name||"Annonomoyus",
-        imageurl:null,
+        imagerul,
     })
 }
 
@@ -37,9 +37,9 @@ export const get_Id = (u1_id,u2_id)=>{
 }
 
 
-export const send_dm =async (text , sender , receiver)=>{
+export const send_dm =async (text , sender , receiver , imageurl = null)=>{
 
-if(!text.trim()) return;
+if(!text.trim()&&!imageurl) return;
 
 
 
@@ -53,11 +53,11 @@ await addDoc(msgrefdm , {
   createdAt:serverTimestamp(),
   userId:sender.uid,
   userName:sender.name,
-  imageurl:null,
+  imageurl,
 })
-
-
 }
+
+
 
 
 export const listentodm = (user1, user2, callback) => {

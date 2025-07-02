@@ -10,6 +10,7 @@ import { getDoc ,doc} from "firebase/firestore";
 
 import { send_dm , listentodm } from "../utils/messages";
 import { useRef } from "react";
+import { uploadtocloud } from "../utils/handleimages";
 
 
 
@@ -33,7 +34,43 @@ const Home = () => {
     const [msgedusers , setMsgdusers] = useState([]);
     const [current , setCurrent] = useState('');
 
-  
+
+    const [imageurl,setImageurl]=useState(null);
+    const filereference = useRef();
+    const [isUploading, setIsUploading] = useState(false);
+
+
+
+    const handleimageupload = async (e)=>{
+      const file = e.target.files[0];
+      if(file){
+        try{
+          const url =await uploadtocloud(file);
+          setIsUploading(true);
+
+          if(url){
+          setImageurl(url);
+          console.log(imageurl);
+          }
+          
+        }catch(err){
+          await ErrorLog({
+                    message:err.message,
+                    location:'Nested Component , login.jsx - handlelogin1',
+                    stack:err.stack,
+             })
+
+             console.log(err);
+        }finally{
+          setIsUploading(false);
+        }
+
+
+      }
+
+
+
+    }
 
 
   useEffect(()=>{
@@ -176,9 +213,6 @@ useEffect(() => {
   }
 }, [msgedusers]);
 
-    
-
-
 
   return (
 <div className="h-screen w-full flex bg-[#f0f2f5]">
@@ -305,6 +339,7 @@ useEffect(() => {
               <p className="text-sm font-semibold text-gray-600 mb-1">{msg.userName}</p>
              
              <>
+
                 {msg.imageurl && (
                   <img
                     src={msg.imageurl}
@@ -312,11 +347,13 @@ useEffect(() => {
                     className="max-w-xs rounded-md mb-2"
                   />
                 )}
+
+                
                 {msg.text && (
                   <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">
                     {msg.text}
                   </p>
-                )}
+                )}                
               </>
 
 
@@ -329,23 +366,39 @@ useEffect(() => {
     {/* Message Input */}
     {user2 && (
       <div className="p-4 bg-white border-t flex items-center gap-3">
+
+        <input type="file"
+        accept="image/*"
+        style={{display:"none"}}
+        ref={filereference}
+        onChange={handleimageupload}
+         />
+
+
+        <button onClick={()=>filereference.current.click()}>
+          📷
+        </button>
+
         <input
           type="text"
           value={dmText}
           onChange={(e) => setDmText(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              send_dm(dmText, user1, user2);
+              send_dm(dmText, user1, user2 , imageurl);
               setDmText("");
+              setImageurl(null);
             }
           }}
           className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#0b57d0] transition"
           placeholder="Type a message..."
         />
+
         <button
           onClick={() => {
-            send_dm(dmText, user1, user2);
+            send_dm(dmText, user1, user2,imageurl);
             setDmText("");
+            setImageurl(null);
           }}
           className="bg-[#0b57d0] hover:bg-[#0a47b2] text-white px-5 py-2 rounded-full transition"
         >
@@ -355,8 +408,6 @@ useEffect(() => {
     )}
   </div>
 </div>
-
-
 
   )
 
