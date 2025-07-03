@@ -45,8 +45,9 @@ const Home = () => {
       const file = e.target.files[0];
       if(file){
         try{
-          const url =await uploadtocloud(file);
           setIsUploading(true);
+          const url =await uploadtocloud(file);
+          
 
           if(url){
           setImageurl(url);
@@ -138,8 +139,6 @@ reference.current?.scrollIntoView({ behavior: "smooth" });
 
 
     useEffect(()=>{
-
-
           const storedUsers = localStorage.getItem(`msgedusers_${current.uid}`);
       if (storedUsers) {
         setMsgdusers(JSON.parse(storedUsers));
@@ -298,7 +297,7 @@ useEffect(() => {
             >
               <img
                 src={user.photourl}
-                alt=""
+                alt="wrong"
                 className="w-10 h-10 object-cover rounded-full border shadow-sm mr-3"
               />
               <span className="text-gray-800 font-medium truncate">{user.name}</span>
@@ -363,6 +362,17 @@ useEffect(() => {
       })}
     </div>
 
+
+{isUploading && (<p className="text-blue-700 mb-2">Uploading the image</p>)}
+
+    {imageurl && (
+  <img
+    src={imageurl}
+    alt="preview"
+    className="max-w-xs rounded-md mb-2"
+  />
+)}
+    
     {/* Message Input */}
     {user2 && (
       <div className="p-4 bg-white border-t flex items-center gap-3">
@@ -406,6 +416,7 @@ useEffect(() => {
         </button>
       </div>
     )}
+
   </div>
 </div>
 

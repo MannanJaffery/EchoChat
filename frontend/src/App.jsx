@@ -7,6 +7,13 @@ import Home from "./components/home";
 import ProtectedRoute from "./components/protectedroute";
 import ForgetPassword from "./Authentication/forgetpassword";
 import ChatRoom from "./components/chatroom";
+
+import AllUsers from "./components/allusers";
+
+
+
+
+
 function App() {
   return (
 
@@ -23,6 +30,11 @@ function App() {
 
         <Route path="/chatroom" element = {<ProtectedRoute>
           <ChatRoom />
+          </ProtectedRoute>}>
+        </Route>
+
+        <Route path="/allusers" element = {<ProtectedRoute>
+          <AllUsers />
           </ProtectedRoute>}>
         </Route>
 

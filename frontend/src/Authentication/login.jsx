@@ -7,7 +7,7 @@ import { FaGoogle } from "react-icons/fa";
 import { doc, setDoc ,getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { ErrorLog } from "../services/errorlog";
-
+import { serverTimestamp } from "firebase/firestore";
 
 const LoginGoogle = () => {
 
@@ -70,6 +70,7 @@ const LoginGoogle = () => {
               photourl:result.user.photoURL,
               isOnline:true,
               uid:user.uid,
+              createdAt: serverTimestamp(),
             })
 
           }

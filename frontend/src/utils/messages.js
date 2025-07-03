@@ -4,7 +4,7 @@ import { collection , addDoc , onSnapshot , orderBy , query , serverTimestamp } 
 const messagesref= collection(db , "messages");
 
 export const sendMessage = async (text , user, imagerul = null)=>{
-    if(!text.trim()) return;
+    if(!text.trim()&&!imagerul) return;
 
     await addDoc(messagesref, {
         text,

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { doc  ,setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { ErrorLog } from "../services/errorlog";
+import { serverTimestamp } from "firebase/firestore";
 
 
 const Register = () => {
@@ -33,6 +34,7 @@ const Register = () => {
           isOnline:true,
           photourl:`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`,
           uid:user.uid,
+          createdAt: serverTimestamp(),
 
         })
 
