@@ -59,7 +59,7 @@ const Register = () => {
           stack:err.stack,
         })
         }
-        navigate("/login");
+        navigate("/");
         console.log(err);
     }
   }
