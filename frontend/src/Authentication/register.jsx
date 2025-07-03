@@ -128,7 +128,7 @@ const Register = () => {
         </button>
 
             <span className="p-4 flex justify-center cursor-pointer text-blue-800 hover:text-blue-700"
-            onClick={()=>{navigate("/login")}}>Already have an account , Login</span>
+            onClick={()=>{navigate("/")}}>Already have an account , Login</span>
       </form>
     </div>
 
