@@ -5,7 +5,7 @@ import { ErrorLog } from "../services/errorlog";
 import { useNavigate } from "react-router-dom";
 import { useState , useEffect } from "react";
 import { db } from "../firebase";
-import { collection , query , where , getDocs } from "firebase/firestore";
+import { collection , query , where , getDocs ,updateDoc } from "firebase/firestore";
 import { getDoc ,doc} from "firebase/firestore";
 
 import { send_dm , listentodm } from "../utils/messages";
@@ -38,8 +38,6 @@ const Home = () => {
     const [imageurl,setImageurl]=useState(null);
     const filereference = useRef();
     const [isUploading, setIsUploading] = useState(false);
-
-
 
     const handleimageupload = async (e)=>{
       const file = e.target.files[0];
@@ -82,9 +80,6 @@ const currentuser = auth.currentUser;
         }
 
   },[])
-
-
-
 
 
   useEffect(()=>{
@@ -152,8 +147,6 @@ reference.current?.scrollIntoView({ behavior: "smooth" });
       fetchcurrentuser();
 
     },[current])
-
-
 
     useEffect(()=>{
 
@@ -300,7 +293,11 @@ useEffect(() => {
                 alt="wrong"
                 className="w-10 h-10 object-cover rounded-full border shadow-sm mr-3"
               />
+              <div >
               <span className="text-gray-800 font-medium truncate">{user.name}</span>
+
+
+              </div>
             </div>
           ))
         ) : (

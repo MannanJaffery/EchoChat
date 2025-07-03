@@ -12,6 +12,7 @@ export const sendMessage = async (text , user, imagerul = null)=>{
         userId:user.uid,
         userName: user.name||"Annonomoyus",
         imagerul,
+        read:false,
     })
 }
 
