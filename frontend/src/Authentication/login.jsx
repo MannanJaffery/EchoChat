@@ -20,6 +20,7 @@ const LoginGoogle = () => {
     
 
     const navigate=useNavigate();
+    
     const handlelogin1= async (e)=>{//with email and password
         e.preventDefault();
 
@@ -30,7 +31,7 @@ const LoginGoogle = () => {
             if(user.emailVerified){
                 alert("User Logged In");
                 
-                navigate("/home");
+                navigate("/");
             }
             else{
                 alert("Please verify the email sent");
@@ -77,7 +78,7 @@ const LoginGoogle = () => {
 
         alert("User logged In");
 
-        navigate("/home");
+        navigate("/");
         }
 
         catch(err){
@@ -141,7 +142,7 @@ const LoginGoogle = () => {
       className="flex items-center gap-2 justify-center bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-200"
     >
       <FaGoogle size={18} />
-      Sign in with Google
+      Continue with Google
     </button>
 
     <div className="flex flex-col sm:flex-row justify-between items-center mt-4 text-sm text-gray-600 gap-2 sm:gap-0">

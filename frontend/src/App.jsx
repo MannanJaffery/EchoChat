@@ -20,13 +20,14 @@ function App() {
     <AuthProvider>
     <Router>
       <Routes>
-        <Route path="/" element = {<LoginGoogle />}></Route>
+        <Route path="/" element = {<ProtectedRoute>
+          <Home />
+          </ProtectedRoute>}></Route>
+
+        <Route path="/login" element={<LoginGoogle />}></Route>
         <Route path="/register" element = {<Register />}></Route>
         <Route path="/forgetpassword" element = {<ForgetPassword />}></Route>
-        <Route path="/home" element = {<ProtectedRoute>
-          <Home />
-          </ProtectedRoute>}>
-        </Route>
+
 
         <Route path="/chatroom" element = {<ProtectedRoute>
           <ChatRoom />

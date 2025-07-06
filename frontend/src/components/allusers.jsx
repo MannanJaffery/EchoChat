@@ -3,13 +3,14 @@ import { collection,getDocs  } from "firebase/firestore"
 
 import { useState, useEffect } from "react"
 import { ErrorLog } from "../services/errorlog";
+import { useNavigate } from "react-router-dom";
 
 
 const AllUsers =  () => {
 
 
     const [users,setUsers]=useState([]);
-
+    const navigate = useNavigate();
     useEffect(()=>{
 
         const fetchUsers = async ()=>{
@@ -34,12 +35,16 @@ const AllUsers =  () => {
     fetchUsers();
     },[])
 
+    
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-6">
   <div className="max-w-7xl mx-auto">
-    <h1 className="text-3xl font-bold text-gray-800 mb-8 border-b pb-4">
-      All Registered Users
+    <div className="flex justify-between items-center ">
+    <h1 className="text-3xl font-bold text-gray-800 mb-8 border-b pb-4 text-center">
+      All usernames to search
     </h1>
+    <span onClick={()=>navigate('/')} className="cursor-pointer hover:text-blue-500 size-11 text-[20px] mb-8 text-blue-800">Back</span>
+    </div>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
       {users.map((user) => (

@@ -4,6 +4,7 @@ import { listenToMessages, sendMessage } from "../utils/messages";
 import { deleteDoc, doc, getDoc } from "firebase/firestore";
 import EmojiPicker from "emoji-picker-react";
 import { uploadtocloud } from "../utils/handleimages";
+import { useNavigate } from "react-router-dom";
 
 const ChatRoom = () => {
   const [msgs, setMsgs] = useState([]);
@@ -14,6 +15,7 @@ const ChatRoom = () => {
 
   const reference_msg = useRef(null);
   const fileref = useRef(null);
+  const navigate = useNavigate();
 
   // Listen for messages
   useEffect(() => {
@@ -77,8 +79,9 @@ const ChatRoom = () => {
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       {/* Header */}
-      <div className="p-4 bg-blue-600 text-white text-lg font-semibold shadow-md">
-        🔵 Public Chat Room
+      <div className="p-4 bg-blue-600 text-white text-lg font-semibold shadow-md flex justify-between">
+        <div>🔵 Public Chat Room</div>
+        <span className="cursor-pointer hover:text-blue-100 " onClick={()=>navigate('/')}>Back</span>
       </div>
 
       {/* Messages */}
