@@ -1,5 +1,6 @@
 import { db } from "../firebase";
-import { collection , addDoc , onSnapshot , orderBy , query , serverTimestamp } from "firebase/firestore";
+import { collection , addDoc , onSnapshot , orderBy , query , serverTimestamp , doc ,setDoc , updateDoc} from "firebase/firestore";
+import { collectionGroup } from "firebase/firestore";
 
 const messagesref= collection(db , "messages");
 
@@ -38,30 +39,101 @@ export const get_Id = (u1_id,u2_id)=>{
 }
 
 
+
+
+
+
+
+
+
+
+//for dm only
+
+
+
+
+export const getMessagedUsers = async (currentUserId) => {
+  const subColRef = collection(db, "User", currentUserId, "messagedUsers");
+
+  const snapshot = await getDocs(subColRef);
+
+  const messagedUsers = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  return messagedUsers;
+};
+
+
+
+
+export const markMessagesAsRead = async (currentUID, selectedUserUID) => {
+  const userRef = doc(db, "User", currentUID, "messagedUsers", selectedUserUID);
+
+  await updateDoc(userRef, {
+    unread: false
+  });
+};
+
+
+
+
 export const send_dm =async (text , sender , receiver , imageurl = null)=>{
-
 if(!text.trim()&&!imageurl) return;
-
-
-
 const chatId = get_Id(sender.uid.trim(),receiver.uid.trim());
-
 const msgrefdm = collection(db , "chats" , chatId , "messages");
-
-
 await addDoc(msgrefdm , {
   text,
   createdAt:serverTimestamp(),
   userId:sender.uid,
+  receiverId:receiver.uid,
   userName:sender.name,
   imageurl,
 })
+const lastmessage = text || "[image]";
 }
 
 
 
+export const listenToAllIncomingMessages = (currentUser, callback ) => {
+  const chatsRef = collectionGroup(db, "messages"); // listen to all messages
+  const q = query(chatsRef, orderBy("createdAt"));
 
-export const listentodm = (user1, user2, callback) => {
+  return onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      const data = change.doc.data();
+
+      // Only act on new messages sent TO currentUser
+      if (change.type === "added" && data.receiverId === currentUser.uid) {
+        const senderId = data.userId;
+
+        callback((prev) => {
+          const alreadyExists = prev.some((u) => u.uid === senderId);
+          if (!alreadyExists) {
+            return [
+              ...prev,
+              {
+                uid: senderId,
+                name: data.userName || "Unknown",
+                lastmessage: data.text || "[image]",
+                timestamp: Date.now(),
+               
+
+              },
+            ];
+          }
+          return prev;
+        });
+      }
+    });
+  });
+};
+
+
+
+export const listentodm = (user1, user2, callback ) => {//callback2 to append the enew users to reciver if not already in this 
+
   const chatId = get_Id(user1.uid, user2.uid);
 
   const msgrefdm = collection(db, "chats", chatId, "messages");
@@ -73,6 +145,10 @@ export const listentodm = (user1, user2, callback) => {
       ...doc.data(),
     }));
     callback(msgs); 
+    
   });
 };
+
+
+
 

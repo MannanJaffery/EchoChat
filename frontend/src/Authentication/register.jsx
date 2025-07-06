@@ -27,6 +27,7 @@ const Register = () => {
       setCheckVerified(true);
       alert("Email Verification Sent , Kindly check spam");
       
+      
       try{
         await setDoc(doc(db,"User" ,user.uid ),{
           name,
@@ -38,7 +39,6 @@ const Register = () => {
 
         })
 
-        
       }catch(err){
         await ErrorLog({
           message:err.message,

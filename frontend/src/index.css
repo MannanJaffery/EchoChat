@@ -1,3 +1,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* === 🛠️ Quill Editor Fixes for Tailwind Setup === */
+
+.ql-editor {
+  @apply min-h-[40px] max-h-[100px] overflow-y-auto px-2 py-1 leading-relaxed rounded-md;
+  white-space: pre-wrap;
+  word-break: break-word;
+  outline: none;
+  border: none;
+  spellcheck: false;
+}
+
+.ql-editor * {
+  display: inline !important;
+}
+
+/* Optional: Style Quill toolbar for compactness */
+.ql-toolbar {
+  @apply rounded-md border border-gray-300 mb-2;
+}
+
+/* Optional: remove ugly border from Quill container */
+.ql-container {
+  @apply border-none shadow-none;
+}
+
+/* Optional: placeholder fix */
+.ql-editor.ql-blank::before {
+  color: #a0aec0; /* Tailwind's gray-400 */
+  font-style: normal;
+}

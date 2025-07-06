@@ -5,17 +5,17 @@ import { ErrorLog } from "../services/errorlog";
 import { useNavigate } from "react-router-dom";
 import { useState , useEffect } from "react";
 import { db } from "../firebase";
-import { collection , query , where , getDocs ,updateDoc } from "firebase/firestore";
+import { collection , query , where , getDocs , deleteDoc  } from "firebase/firestore";
 import { getDoc ,doc} from "firebase/firestore";
 
-import { send_dm , listentodm } from "../utils/messages";
+import { send_dm , listentodm, listenToAllIncomingMessages } from "../utils/messages";
 import { useRef } from "react";
 import { uploadtocloud } from "../utils/handleimages";
 
-
+import EmojiPicker from "emoji-picker-react";
+import { get_Id } from "../utils/messages";
 
 const Home = () => {
-
     const navigate = useNavigate();
     const [searchterm , setSearchterm] = useState('');
     const [filteredusers , setFilteredUsers] = useState([]);
@@ -23,13 +23,9 @@ const Home = () => {
     const [dmText, setDmText] = useState("");
     const [dmMessages, setDmMessages] = useState([]);
 
-    
-
-
     const [user1, setUser1] = useState('');
     const [user2, setUser2] = useState('');
     const reference= useRef(null);
-
 
     const [msgedusers , setMsgdusers] = useState([]);
     const [current , setCurrent] = useState('');
@@ -38,6 +34,28 @@ const Home = () => {
     const [imageurl,setImageurl]=useState(null);
     const filereference = useRef();
     const [isUploading, setIsUploading] = useState(false);
+
+    const user2ref= useRef(null);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+
+
+    const handledelete = async (msgId) => {
+  try {
+
+    console.log("user1 in delete",user1);
+        console.log("user2 in delete",user2);
+  console.log("msgId:", msgId);
+  
+
+    const chatid = get_Id(user1.uid, user2.uid);
+    console.log("chatId:", chatid);
+    await deleteDoc(doc(db, "chats", chatid, "messages", msgId));
+    console.log("Message deleted");
+  } catch (error) {
+    console.error("Error deleting message:", error);
+  }
+};
 
     const handleimageupload = async (e)=>{
       const file = e.target.files[0];
@@ -63,23 +81,30 @@ const Home = () => {
         }finally{
           setIsUploading(false);
         }
-
-
       }
-
-
-
     }
 
 
-  useEffect(()=>{
-const currentuser = auth.currentUser;
 
-        if(currentuser){
-          setCurrent(currentuser);
-        }
+useEffect(() => {
 
-  },[])
+  user2ref.current = user2;
+  console.log("user 2 in effect",user2ref)
+}, [user2]);
+
+    
+
+
+  useEffect(() => {
+  const currentUser = auth.currentUser;
+  console.log("currnet" , currentUser)
+  if (currentUser) {
+    setCurrent(currentUser);
+    console.log("user2ref",user2ref)
+    listenToAllIncomingMessages(currentUser, setMsgdusers, user2ref);
+  }
+}, []);
+
 
 
   useEffect(()=>{
@@ -132,7 +157,6 @@ reference.current?.scrollIntoView({ behavior: "smooth" });
 
     }
 
-
     useEffect(()=>{
           const storedUsers = localStorage.getItem(`msgedusers_${current.uid}`);
       if (storedUsers) {
@@ -141,12 +165,17 @@ reference.current?.scrollIntoView({ behavior: "smooth" });
 
 
         const lastChatUser = localStorage.getItem(`lastChatUser_${current.uid}`);
+
         if (lastChatUser) {
           setUser2(JSON.parse(lastChatUser));
         }
       fetchcurrentuser();
 
     },[current])
+
+
+
+
 
     useEffect(()=>{
 
@@ -284,19 +313,17 @@ useEffect(() => {
         {msgedusers.length > 0 ? (
           msgedusers.map(user => (
             <div
-              key={user.id}
+              key={user.uid}
               onClick={() => setUser2(user)}
               className="flex items-center px-4 py-3 hover:bg-[#f7f9fc] cursor-pointer transition"
             >
               <img
-                src={user.photourl}
-                alt="wrong"
+                src={user.photourl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`}
+                alt="profile"
                 className="w-10 h-10 object-cover rounded-full border shadow-sm mr-3"
               />
               <div >
               <span className="text-gray-800 font-medium truncate">{user.name}</span>
-
-
               </div>
             </div>
           ))
@@ -306,6 +333,7 @@ useEffect(() => {
       </div>
     </div>
   </div>
+
 
   {/* Main Chat Area */}
   <div className="flex-1 h-full flex flex-col bg-[#e5ddd5]">
@@ -318,46 +346,75 @@ useEffect(() => {
     </div>
 
     {/* Messages Scroll Area */}
-    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-      {dmMessages.map((msg) => {
-        const isCurrentUser = msg.userId === user1.uid;
-        return (
+<div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+  {dmMessages.map((msg) => {
+    const isCurrentUser = msg.userId === user1.uid;
+    return (
+      <div
+        key={msg.uid}
+        className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
+      >
+        <div className="relative group w-fit max-w-[70%]">
+          {/* Message Bubble */}
           <div
-            key={msg.id}
-            className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
+            className={`relative p-3 rounded-xl shadow-sm transition ${
+              isCurrentUser ? "bg-[#dcf8c6]" : "bg-white"
+            }`}
+            ref={reference}
           >
-            <div
-              className={`p-3 rounded-xl shadow-sm w-fit max-w-[70%] transition ${
-                isCurrentUser ? "bg-[#dcf8c6]" : "bg-white"
-              }`}
-              ref={reference}
-            >
-              <p className="text-sm font-semibold text-gray-600 mb-1">{msg.userName}</p>
-             
-             <>
+            {/* Username */}
+            <p className="text-sm font-semibold text-gray-600 mb-1">
+              {msg.userName}
+            </p>
 
-                {msg.imageurl && (
-                  <img
-                    src={msg.imageurl}
-                    alt="Sent"
-                    className="max-w-xs rounded-md mb-2"
-                  />
-                )}
+            {/* Image */}
+            {msg.imageurl && (
+              <img
+                src={msg.imageurl}
+                alt="Sent"
+                className="max-w-xs rounded-md mb-2"
+              />
+            )}
 
-                
-                {msg.text && (
-                  <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">
-                    {msg.text}
-                  </p>
-                )}                
-              </>
-
-
-            </div>
+            {/* Text */}
+            {msg.text && (
+              <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">
+                {msg.text}
+              </p>
+            )}
           </div>
-        );
-      })}
-    </div>
+
+          {/* Delete Button (Trash Icon) */}
+          {isCurrentUser && (
+            <button
+              onClick={() => handledelete(msg.id)}
+              className=" flex absolute top-2 right-2 text-gray-400 hover:  hover:text-red-500"
+              title="Delete"
+            >
+              {/* Trash Icon (Tailwind SVG) */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3m5 0H6"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  })}
+</div>
+
 
 
 {isUploading && (<p className="text-blue-700 mb-2">Uploading the image</p>)}
@@ -401,6 +458,28 @@ useEffect(() => {
           placeholder="Type a message..."
         />
 
+
+ {/* Emoji picker toggle */}
+  <div className="relative">
+    <button
+      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+      className="text-xl"
+    >
+      😊
+    </button>
+
+    {showEmojiPicker && (
+      <div className="absolute bottom-14 left-0 z-50">
+        <EmojiPicker
+          onEmojiClick={(emojiData) => {
+            setDmText(prev => prev + emojiData.emoji);
+          }}
+        />
+      </div>
+    )}
+  </div>
+        
+
         <button
           onClick={() => {
             send_dm(dmText, user1, user2,imageurl);
@@ -413,12 +492,11 @@ useEffect(() => {
         </button>
       </div>
     )}
-
+    
   </div>
 </div>
 
   )
-
 }
 
 export default Home;

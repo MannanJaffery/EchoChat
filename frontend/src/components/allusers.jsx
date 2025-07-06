@@ -28,7 +28,6 @@ const AllUsers =  () => {
                 location:' allusers.jsx - AllUsers-useEffect',
                 stack:err.stack,
             })
-            
             console.log(err);
         }
     }
