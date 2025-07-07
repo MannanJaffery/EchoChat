@@ -238,24 +238,21 @@ useEffect(() => {
 }, [msgedusers]);
 
 
-  return (
-<div className="h-screen w-full flex bg-[#f0f2f5]">
+  return (<div className="h-screen w-full flex flex-col md:flex-row bg-[#f0f2f5] overflow-hidden">
   {/* Sidebar */}
-  <div className={`w-full max-w-sm bg-white border-r border-gray-300 flex flex-col shadow-lg 
-    ${isMobileViewChatOpen ? "hidden" : "block"} md:block`}>
+  <div className={`w-full md:max-w-sm bg-white border-r border-gray-300 flex flex-col shadow-lg z-10 ${isMobileViewChatOpen ? "hidden" : "flex"} md:flex`}>
     
     {/* Header */}
-    <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center bg-white sticky top-0 z-10">
+    <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center bg-white sticky top-0 z-20">
       <h1 className="text-xl font-bold text-[#0b57d0]">💬 Echo Chat</h1>
-      <div className="space-x-2">
-        <button onClick={() => navigate("/chatroom")} className="bg-[#0b57d0] hover:bg-[#0a47b2] text-white px-3 py-1 rounded-md text-sm transition">Chatroom</button>
-        <button onClick={handleSignOut} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition">Sign Out</button>
-        
+      <div className="space-x-2 flex-shrink-0">
+        <button onClick={() => navigate("/chatroom")} className="bg-[#0b57d0] hover:bg-[#0a47b2] text-white px-3 py-1 rounded-md text-sm transition whitespace-nowrap">Chatroom</button>
+        <button onClick={handleSignOut} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition whitespace-nowrap">Sign Out</button>
       </div>
     </div>
 
     {/* Search Bar */}
-    <div className="p-3 border-b border-gray-200 bg-white sticky top-12 z-10">
+    <div className="p-3 border-b border-gray-200 bg-white sticky top-[3.5rem] z-10">
       <input
         type="text"
         placeholder="🔍 Search users..."
@@ -264,49 +261,41 @@ useEffect(() => {
       />
     </div>
 
-    {/* User List */}
-    <div className="flex-1 overflow-y-auto bg-white ">
-      {/* Search Results */}
-      <div className="divide-y">
-        {filteredusers.length > 0 ? (
-          filteredusers
-            .filter(user => user.id !== user1.id)
-            .map(user => (
-              <div key={user.id} className="px-4 py-3 hover:bg-[#f7f9fc] flex justify-between items-center cursor-pointer transition">
-                <span className="font-medium text-gray-800 truncate">{user.name}</span>
-                <span
-                  className="text-sm text-[#0b57d0] hover:underline font-semibold"
-                  onClick={() => {
-                    setMsgdusers(prev => {
-                      if (!prev.some(u => u.id === user.id)) return [...prev, user];
-                      return prev;
-                    });
-                    setUser2(user);
-                    setIsMobileViewChatOpen(true);
-                    if (current) {
-                      localStorage.setItem(`lastChatUser_${current.uid}`, JSON.stringify(user));
-                    }
-                  }}
-                >
-                  Message
-                </span>
-              </div>
-            ))
-        ) : searchterm.trim() === "" ? (
-          <>
-          {/* <div className="p-4 text-gray-400 text-sm">Start typing to search... */}
-          <span className = "text-blue-600 cursor-pointer p-4" onClick={()=>navigate('/allusers')}>Check All Registered Users Usernames</span>
-
-          {/* </div> */}
-          </>
-        ) : (
-          <div className="p-4 text-gray-400 text-sm">No users found</div>
-        )}
-      </div>
+    {/* User List + Recently Messaged (Unified Scrollable Block) */}
+    <div className="flex-1 overflow-y-auto bg-white divide-y">
+      {/* Filtered Users */}
+      {filteredusers.length > 0 ? (
+        filteredusers
+          .filter(user => user.id !== user1.id)
+          .map(user => (
+            <div key={user.id} className="px-4 py-3 hover:bg-[#f7f9fc] flex justify-between items-center cursor-pointer transition">
+              <span className="font-medium text-gray-800 truncate">{user.name}</span>
+              <span
+                className="text-sm text-[#0b57d0] hover:underline font-semibold"
+                onClick={() => {
+                  setMsgdusers(prev => (!prev.some(u => u.id === user.id) ? [...prev, user] : prev));
+                  setUser2(user);
+                  setIsMobileViewChatOpen(true);
+                  if (current) {
+                    localStorage.setItem(`lastChatUser_${current.uid}`, JSON.stringify(user));
+                  }
+                }}
+              >
+                Message
+              </span>
+            </div>
+          ))
+      ) : searchterm.trim() === "" ? (
+        <span className="text-blue-600 cursor-pointer p-4 block" onClick={() => navigate('/allusers')}>
+          Check All Registered Users Usernames
+        </span>
+      ) : (
+        <div className="p-4 text-gray-400 text-sm">No users found</div>
+      )}
 
       {/* Recently Messaged */}
-      <div className="border-t border-gray-200 mt-2 overflow-hidden">
-        <h2 className="text-xs font-semibold text-gray-500 px-4 pt-2 pb-1">Recently Messaged</h2>
+      <div className="bg-white">
+        <h2 className="text-xs font-semibold text-gray-500 px-4 pt-4 pb-1">Recently Messaged</h2>
         {msgedusers.length > 0 ? (
           msgedusers.map(user => (
             <div key={user.uid} onClick={() => {
@@ -325,29 +314,29 @@ useEffect(() => {
   </div>
 
   {/* Main Chat Area */}
-  <div className={`flex-1 h-full flex flex-col bg-[#e5ddd5] ${isMobileViewChatOpen ? "block" : "hidden"} md:flex`}>
+  <div className={`flex-1 h-full flex flex-col bg-[#e5ddd5] ${isMobileViewChatOpen ? "flex" : "hidden"} md:flex`}>
     
     {/* Chat Header */}
-    <div className="px-4 py-3 bg-white shadow flex justify-between items-center border-b border-gray-300">
+    <div className="px-4 py-3 bg-white shadow flex justify-between items-center border-b border-gray-300 sticky top-0 z-20">
       {user2 && (
         <button onClick={() => setIsMobileViewChatOpen(false)} className="md:hidden text-blue-600 font-medium">← Back</button>
       )}
-      <span className="font-semibold text-gray-800">
+      <span className="font-semibold text-gray-800 truncate">
         {user2 ? `Chat with ${user2.name}` : "Select a user to start chat"}
       </span>
-      <span className="text-sm text-gray-600">{user1?.name || "Anonymous"}</span>
+      <span className="text-sm text-gray-600 truncate">{user1?.name || "Anonymous"}</span>
     </div>
 
-    {/* Messages Scrollable Container */}
-    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+    {/* Messages */}
+    <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
       {dmMessages.map((msg) => {
         const isCurrentUser = msg.userId === user1.uid;
         return (
           <div key={msg.uid} className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}>
-            <div className="relative group w-fit max-w-[70%]">
-              <div className={`relative p-3 rounded-xl shadow-sm transition ${isCurrentUser ? "bg-[#dcf8c6]" : "bg-white"}`} ref={reference}>
+            <div className="relative group w-fit max-w-[80%]">
+              <div className={`p-3 rounded-xl shadow-sm ${isCurrentUser ? "bg-[#dcf8c6]" : "bg-white"}`} ref={reference}>
                 <p className="text-sm font-semibold text-gray-600 mb-1">{msg.userName}</p>
-                {msg.imageurl && <img src={msg.imageurl} alt="Sent" className="max-w-xs rounded-md mb-2" />}
+                {msg.imageurl && <img src={msg.imageurl} alt="Sent" className="max-w-full rounded-md mb-2" />}
                 {msg.text && <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">{msg.text}</p>}
               </div>
               {isCurrentUser && (
@@ -363,19 +352,19 @@ useEffect(() => {
       })}
     </div>
 
-    {/* Uploading Preview / Image */}
-    {isUploading && (<p className="text-blue-700 mb-2 px-6">Uploading the image...</p>)}
+    {/* Upload Preview */}
+    {isUploading && (<p className="text-blue-700 mb-2 px-4">Uploading the image...</p>)}
     {imageurl && (
-      <div className="px-6 pb-2">
-        <img src={imageurl} alt="preview" className="max-w-xs rounded-md" />
+      <div className="px-4 pb-2">
+        <img src={imageurl} alt="preview" className="max-w-full rounded-md" />
       </div>
     )}
 
-    {/* Message Input Sticky */}
+    {/* Message Input */}
     {user2 && (
-      <div className="sticky bottom-0 bg-white border-t flex items-center gap-3 px-4 py-3 z-10">
+      <div className="sticky bottom-0 bg-white border-t flex items-center gap-2 px-4 py-3 z-20 w-full flex-wrap">
         <input type="file" accept="image/*" style={{ display: "none" }} ref={filereference} onChange={handleimageupload} />
-        <button onClick={() => filereference.current.click()}>📷</button>
+        <button onClick={() => filereference.current.click()} className="text-xl">📷</button>
         <input
           type="text"
           value={dmText}
@@ -387,29 +376,31 @@ useEffect(() => {
               setImageurl(null);
             }
           }}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#0b57d0] transition"
+          className="flex-1 min-w-[100px] px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#0b57d0] transition"
           placeholder="Type a message..."
         />
-        {/* Emoji Picker */}
         <div className="relative">
           <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-xl">😊</button>
           {showEmojiPicker && (
             <div className="absolute bottom-14 left-0 z-50">
-              <EmojiPicker onEmojiClick={(emojiData) => {
-                setDmText(prev => prev + emojiData.emoji);
-              }} />
+              <EmojiPicker onEmojiClick={(emojiData) => setDmText(prev => prev + emojiData.emoji)} />
             </div>
           )}
         </div>
-        <button onClick={() => {
-          send_dm(dmText, user1, user2, imageurl);
-          setDmText("");
-          setImageurl(null);
-        }} className="bg-[#0b57d0] hover:bg-[#0a47b2] text-white px-5 py-2 rounded-full transition">Send</button>
+        <button
+          onClick={() => {
+            send_dm(dmText, user1, user2, imageurl);
+            setDmText("");
+            setImageurl(null);
+          }}
+          className="bg-[#0b57d0] hover:bg-[#0a47b2] text-white px-5 py-2 rounded-full transition whitespace-nowrap"
+        >➤</button>
       </div>
     )}
   </div>
 </div>
+
+
 
   )
 }
